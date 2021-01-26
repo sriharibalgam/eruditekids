@@ -1,0 +1,15 @@
+# Dependency Folders
+node_modules
+build
+
+
+
+# macOS related files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# editors related files
+.vscode/
+.idea/
+.vs/

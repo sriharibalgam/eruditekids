@@ -1,0 +1,38 @@
+{
+  "name": "eruditekids",
+  "version": "1.0.0",
+  "description": "Erudite Kids School",
+  "main": "server.ts",
+  "scripts": {
+    "start": "nodemon app/server.ts",
+    "build": "rm -rf build/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sriharibalgam/eruditekids.git"
+  },
+  "author": "Srihari Balgam",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sriharibalgam/eruditekids/issues"
+  },
+  "homepage": "https://github.com/sriharibalgam/eruditekids#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^4.4.1",
+    "mongoose": "^5.11.13"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/cors": "^2.8.9",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.11",
+    "@types/helmet": "^4.0.0",
+    "@types/mongoose": "^5.10.3",
+    "@types/node": "^14.14.22",
+    "bcrypt": "^5.0.0"
+  }
+}
