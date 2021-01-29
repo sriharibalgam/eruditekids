@@ -2,7 +2,8 @@
 node_modules
 build
 
-
+.env
+EruditeKidsLogs.log
 
 # macOS related files
 .DS_Store

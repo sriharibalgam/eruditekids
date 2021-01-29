@@ -1,8 +1,6 @@
-import dotenv from 'dotenv';
-dotenv.config();
-import serverConfig from './serverConfig';
-import dbConnectionConfig from './dbConnectionConfig'
+import serverConfig from './server.config';
+import dbConnectionConfig from './dbConnection.config'
+import passportConfig from './passport.config'
 
 
-
-export default { serverConfig, dbConnectionConfig };
+export default { serverConfig, dbConnectionConfig, passportConfig };

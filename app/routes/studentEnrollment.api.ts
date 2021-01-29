@@ -1,10 +1,24 @@
 
 import { Request, Response, NextFunction, Router } from 'express';
 import { StudentService } from '../services/students.service';
+import passport from 'passport';
+import { validate, Joi } from 'express-validation';
+import logger from '../utils/logger';
+
 
 let studentSerive = new StudentService();
 let namespace = 'STUDENT_API';
 let router = Router();
+
+const validateRegistration = {
+    body: Joi.object({
+        firstName: Joi.string().trim().required(),
+        lastName: Joi.string().trim(),
+        email: Joi.string().email().required(),
+        password: Joi.string().length(4)
+    })
+}
+
 
 const studentRegistration = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -27,10 +41,10 @@ const studentRegistration = async (req: Request, res: Response, next: NextFuncti
 
 /* Student Login */
 const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
-    console.log('request Body ', req.body);
+    logger.info(namespace, 'request Body ', req.body);
     try {
         let loggedIn = await studentSerive.studentLogin(req);
-        console.log('request studentLogin ', loggedIn);
+        logger.info(namespace, 'request studentLogin ', loggedIn);
         if (loggedIn) {
             res.status(200).json(loggedIn);
         } else {
@@ -46,7 +60,7 @@ const studentLogin = async (req: Request, res: Response, next: NextFunction) => 
 const getStudentsList = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let students = await studentSerive.getStudents();
-        console.log(namespace, ' getStudentsList ', students);
+        logger.info(namespace, ' getStudentsList ', students);
         res.status(200).send(students);
     } catch (err) {
         console.error(namespace, 'getStudentsList', err);
@@ -54,9 +68,22 @@ const getStudentsList = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
+const checkUserAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+
+    logger.info(namespace, 'req.isAuthenticated() ', req.isAuthenticated());
+    if(req.isAuthenticated()) {
+        logger.info(namespace, 'User Authenticated');
+        return next();
+    } 
+    logger.info(namespace, 'User Not Authenticated .. Checked Auth');
+    res.redirect('/login');
+}
+
 /* Routes */
-router.get('/getStudentsList', getStudentsList);
-router.post('/studentRegistration', studentRegistration);
-router.post('/studentLogin', studentLogin);
+router.get('/getStudentsList', checkUserAuthenticated, getStudentsList);
+router.post('/studentRegistration', validate(validateRegistration, {}, {}), studentRegistration);
+
+// Authenticate Use Before login
+router.post('/studentLogin', passport.authenticate('local', { failureFlash: 'Invalid username or password.' }), studentLogin);
 
 export default router; 

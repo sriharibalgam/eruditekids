@@ -66,14 +66,14 @@
                 <label for="student-password">Password</label>
                 <input type="password" class="form-control" id="student-password" placeholder="Password">
             </div>
-
+            <div id="invalid" class="text-danger"></div>
             <button type="submit" class="btn btn-primary">Enroll</button>
         </form>
     </div>
 
 
 
-    <!-- Optional JavaScript -->
+     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
@@ -85,46 +85,7 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
     </script>
 
-    <script>
-        const enrollmentForm = document.getElementById('enrollment-form');
-
-        enrollmentForm.onsubmit = ($event) => {
-            $event.preventDefault();
-
-            const firstName = document.getElementById('student-fname').value;
-            const lastName = document.getElementById('student-lname').value;
-            const email = document.getElementById('student-email').value;
-            const password = document.getElementById('student-password').value;
-
-            const enrolStudent = {
-                firstName,
-                lastName,
-                email,
-                password
-            };
-            console.log("Student Details", enrolStudent);
-
-            // Make API Call
-            fetch('http://localhost:4000/studentRegistration', {
-                    method: 'POST',
-                    body: JSON.stringify(enrolStudent),
-                    headers: {
-                        "Content-Type": "application/json; charset=UTF-8"
-                    },
-                }).then(response => response.json())
-                .then(data => {
-                    if(data.status != 200){
-                        console.log('Data Insertion Not Success:', data);
-                    } else {
-                        console.log('Success:', data);
-                    }
-                    
-                })
-                .catch((err) => {
-                    console.error("Failed Operation ", err);
-                })
-        }
-    </script>
+    <script src="public/scripts.js"></script>
 </body>
 
 </html>

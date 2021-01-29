@@ -2,20 +2,21 @@ import { IStudent } from "../interfaces/stundents.interface";
 import StudentsModel from "../models/studentsSchema";
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
+import logger from '../utils/logger';
 
 export class StudentService {
     namespace = "STUDENT_SERVICE";
 
     constructor() {
-        console.log("Students Service Initialized");
+        logger.info(this.namespace, "Students Service Initialized");
     }
 
     /* Student Registration */
     async enrollStudent(req: Request, res: Response, next: NextFunction) {
-        console.log(this.namespace, " enrollmentData ", req.body);
+        logger.info(this.namespace, " enrollmentData ", req.body);
 
         let enrollmentData: IStudent = req.body;
-
+        
         // Hash Password
         let hashedPassword = await bcrypt.hash(enrollmentData.password, 12);
 
@@ -28,7 +29,7 @@ export class StudentService {
             .save()
             .then(data => data)
             .catch(err => {
-                console.log(this.namespace, " studentExists ", "MONGO ERROR ", err.message);
+                logger.info(this.namespace, " studentExists " + "MONGO ERROR ", err.message);
                 res.status(409).json({ message: err.message });
             });
 
@@ -38,15 +39,16 @@ export class StudentService {
     async studentLogin(req: Request) {
         let { email, password } = req.body;
         let userFound = await StudentsModel.findOne({ email: email });
-        console.log('UserFound!! ', userFound);
+        logger.info(this.namespace, 'UserFound!! ', userFound);
         let response = { status: 200, message: '' };
 
         if (userFound !== null) {
-            console.log('Username Matched!! ', userFound.email);
+            logger.info(this.namespace, 'Username Matched!! ', userFound.email);
 
             let passwordMatched = await bcrypt.compare(password, userFound.password);
-            console.log('Password Matched!! ', passwordMatched);
+            logger.info(this.namespace, 'Password Matched!! ', passwordMatched);
             if (!passwordMatched) {
+                response.status = 401;
                 response.message = 'Password Not Matched';
                 return response;
             }
@@ -56,13 +58,13 @@ export class StudentService {
             return response;
 
         } else {
+            response.status = 401;
             response.message = 'User not Found in Database';
-            console.log()
             return response;
         }
 
         /* findUser.then(async (user: any) => {
-            console.log('User Found!! ', user);
+            logger.info(this.namespace, 'User Found!! ', user);
             if (!user) {
                 return { "status": 400, "message": 'User Not Found' };
             }
@@ -70,7 +72,7 @@ export class StudentService {
             // If User Found Compare Password
             await bcrypt.compare(password, user.password)
                 .then((result) => {
-                    console.log('Username Passowrd  NotMatched!! ', result);
+                    logger.info(this.namespace, 'Username Passowrd  NotMatched!! ', result);
                     if (!result) {
                         loginError.message = "Username Passowrd did not match!!"
                         return loginError;
@@ -79,11 +81,11 @@ export class StudentService {
                     // Store User details in Session of LocalStorage
                     return user;
                 }).catch((err) => {
-                    console.log(err);
+                    logger.info(this.namespace, err);
                 });
                 return user;
         }).catch((err: any) => {
-            console.log('Something Went Wrong!! ', err);
+            logger.info(this.namespace, 'Something Went Wrong!! ', err);
             return err;
         }); */
     }
@@ -92,7 +94,7 @@ export class StudentService {
         try {
             return await StudentsModel.find({}).lean();
         } catch (err) {
-            console.log(this.namespace, ' getStudents ', 'Error ', err);
+            logger.error(this.namespace, this.namespace + ' getStudents ' + err);
         }
         
     }
