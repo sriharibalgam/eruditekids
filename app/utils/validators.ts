@@ -1,7 +1,7 @@
-let validators = {
+const validators = {
 
     validatePassword: (password: string) => {
-        if(password && password.length < 6) {
+        if (password && password.length < 6) {
             return false;
         }
         return true;
@@ -10,13 +10,11 @@ let validators = {
     validateEmail: (email: string) => {
         const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(.[a-zA-Z])$/;
         const regEx = new RegExp(emailPattern);
-        if(email && emailPattern.test(email)) {
+        if (email && emailPattern.test(email)) {
             return false;
         }
         return true;
     }
-
-
 
 };
 

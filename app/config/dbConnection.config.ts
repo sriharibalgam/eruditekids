@@ -10,17 +10,17 @@ const environment = process.env.ENV_NAME || 'local';
 
 // mongodb+srv://eruditekids:eruditekids@eruditekids.6mwrn.mongodb.net/
 const serverDBUrl = `mongodb+srv://${credentials}${host}/${database}?retryWrites=true`;
-const localDBUrl = `mongodb://${credentials}${host}:${mongoport}/${database}?ssl=${ssl}`
+const localDBUrl = `mongodb://${credentials}${host}:${mongoport}/${database}?ssl=${ssl}`;
 
 const dbConnection = {
   env: environment,
-  host: host,
+  host,
   dbUrl: (process.env.ENV_NAME || 'LOCAL') !== 'LOCAL' ? serverDBUrl : localDBUrl,
   options: {
-    poolSize: poolSize,
+    poolSize,
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true,
+    useCreateIndex: true
   }
 };
 

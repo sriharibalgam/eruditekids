@@ -18,20 +18,20 @@ import flassMessages from 'express-flash';
 import configs from './config/index'; // We can use './config/.' too
 import allRoutes from './routes/index';
 import logger from './utils/logger';
-let app = express();
+const app = express();
 
 /* ========= Parsing the request ========= */
-app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json());
 app.use(cors());
 
-// CSP Policy Error 
+// CSP Policy Error
 app.use(helmet.contentSecurityPolicy({
-    directives:{
-      defaultSrc:["'self'", 'unsafe-inline'],
-      scriptSrc:["'self'", 'code.jquery.com','maxcdn.bootstrapcdn.com', 'cdnjs.cloudflare.com', 'unsafe-inline'],
-      styleSrc:["'self'",'maxcdn.bootstrapcdn.com', 'unsafe-inline'],
-      fontSrc:["'self'",'maxcdn.bootstrapcdn.com']
+    directives: {
+      defaultSrc: ["'self'", 'unsafe-inline'],
+      scriptSrc: ["'self'", 'code.jquery.com', 'maxcdn.bootstrapcdn.com', 'cdnjs.cloudflare.com', 'unsafe-inline'],
+      styleSrc: ["'self'", 'maxcdn.bootstrapcdn.com', 'unsafe-inline'],
+      fontSrc: ["'self'", 'maxcdn.bootstrapcdn.com']
     }
     })
 );
@@ -54,10 +54,12 @@ app.use('/public', express.static(path.join(__dirname, '../public')));
 
 /* ========= Logging Request and Response Middleware ========= */
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-    logger.info('ERUDITE_KIDS Request', `[${new Date().toISOString()}]:: METHOD: [${req.method}], URL: [${req.url}], IP: [${req.socket.remoteAddress}]`);
+    logger.info('ERUDITE_KIDS Request', `[${new Date().toISOString()}]:: METHOD: [${req.method}],
+    URL: [${req.url}], IP: [${req.socket.remoteAddress}]`);
 
     res.on('finish', () => {
-        console.info('ERUDITE_KIDS Response', `[${new Date().toISOString()}]:: METHOD: [${req.method}], URL: [${req.url}], IP: [${req.socket.remoteAddress}], STATUS: ${res.statusCode}`);
+        console.info('ERUDITE_KIDS Response', `[${new Date().toISOString()}]:: METHOD: [${req.method}], URL: [${req.url}],
+        IP: [${req.socket.remoteAddress}], STATUS: ${res.statusCode}`);
     });
 
     process.on('unhandledRejection', (err) => {
@@ -65,7 +67,7 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
     });
 
     next();
-})
+});
 
 /* ========= Routers ========= */
 app.use('/', allRoutes);
@@ -77,26 +79,24 @@ mongoose.connect(configs.dbConnectionConfig.dbUrl, configs.dbConnectionConfig.op
 })
 .catch((err: Error) => {
     console.error('Mongoose Connection Failed ', err);
-})
+});
 /* ========= End Database Connectivity ============= */
-
 
 /* Error Handling Middleware */
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     const err = new Error('Not Found');
     res.status(404).json({
         message: err.message
-    })
+    });
     next();
-})
+});
 
-app.use(function (err: ValidationError, req: express.Request, res: express.Response, next: express.NextFunction) {
+app.use( (err: ValidationError, req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (err instanceof ValidationError) {
         return res.status(err.statusCode).json(err);
     }
     return res.status(500).json(err);
-})
-
+});
 
 /* Create Server */
 app.listen(configs.serverConfig.serverConfig.port, () => {

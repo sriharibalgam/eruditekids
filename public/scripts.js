@@ -28,12 +28,15 @@
                     },
                 }).then(response => response.json())
                 .then(data => {
-                    if(data.status != 200){
+                    if(data.status === 200){
+                        window.location.href = '/login';
+                        console.log('Success:', data);
+                    } else if(data.statusCode === 400) {
                         console.log('Data Insertion Not Success:', data);
-                        console.log('Data Insertion Not Success:', invalidForm.innerHTML = data.details.body[0].message);
+                        console.log('Data Insertion Not Success:', data.details.body[0].message);
                         invalidForm.innerHTML = data.details.body[0].message;
                     } else {
-                        console.log('Success:', data);
+                        invalidForm.innerHTML = data.message;
                     }
                     
                 })
