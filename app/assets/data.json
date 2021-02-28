@@ -1,0 +1,57 @@
+{
+    "word": "start",
+    "sound": "stɑrt",
+    "category": "",
+    "subcat": "",
+    "imageUrl": "",
+    "imgDescription": "",
+    "data": [{
+            "sound": "BLEND_ST",
+            "soundPhonem": "st",
+            "index": [
+                0
+            ],
+            "audioSrc": "phonems/BLEND_ST.mp3"
+        },
+        {
+            "sound": "SHORT_O",
+            "soundPhonem": "a",
+            "index": [
+                1
+            ],
+            "audioSrc": "phonems/SHORT_O.mp3"
+        },
+        {
+            "sound": "CONST_R",
+            "soundPhonem": "r",
+            "index": [
+                2
+            ],
+            "audioSrc": "phonems/CONST_R.mp3"
+        },
+        {
+            "sound": "CONST_T",
+            "soundPhonem": "t",
+            "index": [
+                3
+            ],
+            "audioSrc": "phonems/CONST_T.mp3"
+        },
+        {
+            "sound": "start",
+            "soundPhonem": "start",
+            "index": [
+                4
+            ],
+            "audioSrc": "wordSounds/start.mp3"
+        },
+        {
+            "sound": "start",
+            "soundPhonem": "start",
+            "index": [
+                5
+            ],
+            "audioSrc": "sentences/start.mp3"
+        }
+    ]
+}
