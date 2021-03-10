@@ -73,15 +73,19 @@ export class PhonicsService {
         // TODO: Convert searchWords to Array
         PhonicsModel.find({ 'sound': { $in : searchWords } }, (err: Error, records: any) => {
             if (err) { throw err; }
-            logger.info('PhonicsService', 'findPhonicSounds:: WordsList:: ', [records.length, searchWords.length]);
             if (records.length) {
-                // TODO: Update Logic - Remove [records] from [searchWords]
-                const foundWords = records.map( (word: any) => word.sound);
-                console.log('Uniq ', searchWords.toString(), foundWords.toString());
-                return res.status(200).json({ message: 'Few Sounds are Not Available', data: searchWords});
+                const foundWords = records.map( (word: any) => word.sound); // Map sounds from records
+                // Filter words from SearchWords and return an array of words that are not exist in database
+                let unMatchedData;
+                if (foundWords.length > searchWords.length) {
+                    unMatchedData = foundWords.filter((f: any) => !searchWords.includes(f));
+                } else {
+                    unMatchedData = searchWords.filter((f: any) => !foundWords.includes(f));
+                }
+                return res.status(200).json({ message: 'Uploaded', data: unMatchedData});
             } else {
-                console.log(' NO Records Found ');
-                return res.status(200).json({ message: 'All Sounds are uploaded.', data: records});
+                logger.info('info', 'NO Records Found');
+                return res.status(200).json({ message: 'Sounds Not Uploaded', data: records});
             }
         });
     }
