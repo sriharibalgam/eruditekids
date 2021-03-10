@@ -7,8 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>Erudite Kids</title>
 </head>
@@ -17,8 +16,7 @@
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#">Navbar</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -45,20 +43,131 @@
         <div class="jumbotron">
             <h1 class="">Welcome to Erudite Kids Play School</h1>
         </div>
+
+
+        <!-- Content here -->
+        <div class="jumbotron">
+            <h1 class="">Payment Gateway</h1>
+            <button type="submit" class="btn btn-primary" onclick="makePayment()">Pay Fee</button>
+
+            <button id="rzp-button1" class="btn btn-outline-dark btn-lg">Fee Checkout</button>
+        </div>
     </div>
 
+    <!-- Order Details -->
+    <script>
+        function makePayment() {
+            const KEY = 'rzp_test_IZWqnQp3SRAtI4';
+            const SECRET = 'l7jpji3W8YcBe13p3J5c7DRs';
+            const paymentURL = 'https://api.razorpay.com/v1/orders';
 
+            const encodeAuth = btoa(`${KEY}:${SECRET}`); // base64 encryption 
+
+            const amount = 100;
+
+            var options = {
+                "amount": amount,
+                "currency": "INR",
+                "receipt": "Receipt no. 1",
+                "payment_capture": 1,
+                "notes": {
+                    "feeDetails": "School Payment 1st Installment "
+                }
+            };
+
+
+            fetch(paymentURL, {
+                    method: "POST",
+                    body: JSON.stringify(options),
+                    headers: {
+                        "Authorization": 'Basic ' + encodeAuth,
+                        "Content-type": "application/json; charset=UTF-8",
+                        "Access-Control-Allow-Origin": "*"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Order Details :', data);
+                })
+                .catch(err => console.log(JSON.stringify(err)));
+
+        }
+    </script>
+
+    <!-- Payment Checkout process from JavaScript -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        const paymentTypesConfig = {
+            display: {
+                blocks: {
+                    banks: {
+                        name: 'All payment methods',
+                        instruments: [{
+                            method: 'upi',
+                            apps: ['google_pay', 'bhim', 'paytm', 'phonepe', 'amazon'],
+                            flows: ['qr', 'collect', 'intent']
+                        }, {
+                            method: 'card',
+                            networks: ['MasterCard', 'Visa'],
+                            types: ['debit', 'credit']
+                        }, {
+                            method: 'wallet',
+                            wallets: ['amazonpay', 'phonepe', 'airtelmoney', 'freecharge']
+                        }, {
+                            method: 'netbanking'
+                        }, {
+                            method: 'emi'
+                        }],
+                    },
+                },
+                sequence: ['block.banks'],
+                preferences: {
+                    show_default_blocks: false,
+                },
+            },
+        };
+
+        const checkoutOptions = {
+            "key": "rzp_test_IZWqnQp3SRAtI4", // Enter the Key ID generated from the Dashboard
+            "amount": "1000",
+            "currency": "INR",
+            "description": "EruditeKids English Mastery",
+            "image": "https://s3.amazonaws.com/rzp-mobile/images/rzp.png",
+            "prefill": {
+                "email": "eruditeskids.in@gmail.com",
+                "contact": 9966000066,
+            },
+            config: paymentTypesConfig,
+            "handler": function(response) {
+                console.log('Payment Response:: ', response);
+                alert(response.razorpay_payment_id);
+            },
+            "modal": {
+                "ondismiss": function() {
+                    if (confirm("Are you sure, you want to close the form?")) {
+                        txt = "You pressed OK!";
+                        console.log("Checkout form closed by the user");
+                    } else {
+                        txt = "You pressed Cancel!";
+                        console.log("Complete the Payment")
+                    }
+                }
+            }
+        };
+        var rzp1 = new Razorpay(checkoutOptions);
+        document.getElementById('rzp-button1').onclick = function(e) {
+            rzp1.open();
+            e.preventDefault();
+        }
+    </script>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
     </script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
     </script>
 </body>
 
