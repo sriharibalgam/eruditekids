@@ -25,8 +25,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json());
 app.use(cors());
 
-// CSP Policy Error
-app.use(helmet.contentSecurityPolicy({
+// CSP Policy Error -- // Commented since Not able to procced with Payment gateway
+/* app.use(helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'", 'unsafe-inline'],
       scriptSrc: ["'self'", 'code.jquery.com', 'maxcdn.bootstrapcdn.com', 'cdnjs.cloudflare.com', 'unsafe-inline'],
@@ -34,7 +34,7 @@ app.use(helmet.contentSecurityPolicy({
       fontSrc: ["'self'", 'maxcdn.bootstrapcdn.com']
     }
     })
-);
+); */
 // app.use(helmet()); // Helmet is the top-level middleware for express HTTP module, including all 11 Middlewares.
 
 /* Authentication Middleware */
@@ -58,7 +58,7 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
     URL: [${req.url}], IP: [${req.socket.remoteAddress}]`);
 
     res.on('finish', () => {
-        console.info('ERUDITE_KIDS Response', `[${new Date().toISOString()}]:: METHOD: [${req.method}], URL: [${req.url}],
+        logger.info('ERUDITE_KIDS Response', `[${new Date().toISOString()}]:: METHOD: [${req.method}], URL: [${req.url}],
         IP: [${req.socket.remoteAddress}], STATUS: ${res.statusCode}`);
     });
 

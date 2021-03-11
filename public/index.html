@@ -10,12 +10,14 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>Erudite Kids</title>
+    <!-- Payment Checkout process from JavaScript -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 
 <body>
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Navbar</a>
+            <a class="navbar-brand" href="/">Navbar</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -23,7 +25,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
-                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/register">Student Enrollment</a>
@@ -49,115 +51,177 @@
         <div class="jumbotron">
             <h1 class="">Payment Gateway</h1>
             <button type="submit" class="btn btn-primary" onclick="makePayment()">Pay Fee</button>
-
-            <button id="rzp-button1" class="btn btn-outline-dark btn-lg">Fee Checkout</button>
         </div>
     </div>
 
     <!-- Order Details -->
     <script>
         function makePayment() {
-            const KEY = 'rzp_test_IZWqnQp3SRAtI4';
-            const SECRET = 'l7jpji3W8YcBe13p3J5c7DRs';
-            const paymentURL = 'https://api.razorpay.com/v1/orders';
+            const keySecret = {
+                KEY: 'rzp_test_IZWqnQp3SRAtI4',
+                SECRET: 'l7jpji3W8YcBe13p3J5c7DRs'
+            };
+            const paymentURL = 'http://localhost:4000/order';
 
-            const encodeAuth = btoa(`${KEY}:${SECRET}`); // base64 encryption 
+            // const paymentURL = 'https://api.razorpay.com/v1/orders';
+            // const encodeAuth = btoa(`${keySecret.KEY}:${keySecret.SECRET}`); // base64 encryption 
+            // "Authorization": 'Basic ' + encodeAuth,
 
+            // Student Fee Details & Parents Infomation
             const amount = 100;
+            const receiptNumber = `#Receipt_${Math.ceil(Math.random() * 1000)}`;
+            const email = "eruditeskids.in@gmail.com";
+            const contact = 9966000066;
+            const feeDescription = "Fee paid for 1st Installment";
 
-            var options = {
+            // Get OrderID with by Details to Server 
+            const order_options = {
                 "amount": amount,
                 "currency": "INR",
-                "receipt": "Receipt no. 1",
-                "payment_capture": 1,
-                "notes": {
-                    "feeDetails": "School Payment 1st Installment "
-                }
+                "receipt": receiptNumber,
+                "payment_capture": 1
             };
 
-
+            // make Service Request for Payment
             fetch(paymentURL, {
                     method: "POST",
-                    body: JSON.stringify(options),
+                    body: JSON.stringify(order_options),
                     headers: {
-                        "Authorization": 'Basic ' + encodeAuth,
                         "Content-type": "application/json; charset=UTF-8",
                         "Access-Control-Allow-Origin": "*"
                     }
                 })
                 .then(response => response.json())
-                .then(data => {
-                    console.log('Order Details :', data);
+                .then(orderDetails => {
+                    if (orderDetails.order) {
+                        const order = orderDetails.order;
+                        console.log('Order Details Test: ', order);
+
+                        // Get Payment Types
+                        const paymentTypes = getPaymentTypes();
+
+                        const checkoutOptions = {
+                            key: keySecret.KEY,
+                            amount: order.amount,
+                            currency: "INR",
+                            name: "EruditeKids English Mastery",
+                            description: feeDescription,
+                            image: "https://s3.amazonaws.com/rzp-mobile/images/rzp.png",
+                            prefill: {
+                                email: email,
+                                contact: contact,
+                            },
+                            order_id: order.id,
+                            config: paymentTypes,
+                            handler: (response) => {
+                                console.log('Payment Response:: ', response, ' ::ORDERID:: ', response.razorpay_payment_id);
+                                // Save Payment Details in Database
+                                savePaymentDetails(response, order);
+                            },
+                            modal: {
+                                ondismiss: () => {
+                                    if (confirm('Are you sure, you want to close the form?')) {
+                                        txt = 'You pressed OK!';
+                                        console.log('Checkout form closed by the user');
+                                    } else {
+                                        txt = 'You pressed Cancel!';
+                                        console.log('Complete the Payment')
+                                    }
+                                }
+                            }
+                        };
+
+                        // Create Connection with Razorpay
+                        let razorpay = new Razorpay(checkoutOptions);
+                        // Open Payment Modal
+                        razorpay.open();
+
+                        // Payment Failed Details 
+                        razorpay.on('payment.failed', function(response) {
+                            console.log('Payment Failed:: ', response);
+                            savePaymentDetails(response, order);
+                        });
+                    }
+                    console.log('Order Details :', orderDetails);
                 })
                 .catch(err => console.log(JSON.stringify(err)));
-
         }
-    </script>
 
-    <!-- Payment Checkout process from JavaScript -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script>
-        const paymentTypesConfig = {
-            display: {
-                blocks: {
-                    banks: {
-                        name: 'All payment methods',
-                        instruments: [{
-                            method: 'upi',
-                            apps: ['google_pay', 'bhim', 'paytm', 'phonepe', 'amazon'],
-                            flows: ['qr', 'collect', 'intent']
-                        }, {
-                            method: 'card',
-                            networks: ['MasterCard', 'Visa'],
-                            types: ['debit', 'credit']
-                        }, {
-                            method: 'wallet',
-                            wallets: ['amazonpay', 'phonepe', 'airtelmoney', 'freecharge']
-                        }, {
-                            method: 'netbanking'
-                        }, {
-                            method: 'emi'
-                        }],
+
+        // Payment types Configuration
+        function getPaymentTypes() {
+            const paymentTypesConfig = {
+                display: {
+                    blocks: {
+                        banks: {
+                            name: 'All payment methods',
+                            instruments: [{
+                                method: 'upi',
+                                apps: ['google_pay', 'bhim', 'paytm', 'phonepe', 'amazon'],
+                                flows: ['qr', 'collect', 'intent']
+                            }, {
+                                method: 'card',
+                                networks: ['MasterCard', 'Visa'],
+                                types: ['debit', 'credit']
+                            }, {
+                                method: 'wallet',
+                                wallets: ['amazonpay', 'phonepe', 'airtelmoney', 'freecharge']
+                            }, {
+                                method: 'netbanking'
+                            }, {
+                                method: 'emi'
+                            }]
+                        }
                     },
-                },
-                sequence: ['block.banks'],
-                preferences: {
-                    show_default_blocks: false,
-                },
-            },
-        };
-
-        const checkoutOptions = {
-            "key": "rzp_test_IZWqnQp3SRAtI4", // Enter the Key ID generated from the Dashboard
-            "amount": "1000",
-            "currency": "INR",
-            "description": "EruditeKids English Mastery",
-            "image": "https://s3.amazonaws.com/rzp-mobile/images/rzp.png",
-            "prefill": {
-                "email": "eruditeskids.in@gmail.com",
-                "contact": 9966000066,
-            },
-            config: paymentTypesConfig,
-            "handler": function(response) {
-                console.log('Payment Response:: ', response);
-                alert(response.razorpay_payment_id);
-            },
-            "modal": {
-                "ondismiss": function() {
-                    if (confirm("Are you sure, you want to close the form?")) {
-                        txt = "You pressed OK!";
-                        console.log("Checkout form closed by the user");
-                    } else {
-                        txt = "You pressed Cancel!";
-                        console.log("Complete the Payment")
+                    sequence: ['block.banks'],
+                    preferences: {
+                        show_default_blocks: false,
                     }
                 }
+            };
+            return paymentTypesConfig;
+        }
+
+        // Save Details in Database on Successfull Payment
+        function savePaymentDetails(response, order) {
+            const failurePayment = {
+                code: response.code,
+                description: response.description,
+                metadata: response.metadata,
+                reason: response.reason,
+                source: response.source,
+                step: response.step
+            };
+
+            console.log('Successfull Order:: ', response, order);
+            const paymentInfo = {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                amount: order.amount,
+                amount_paid: order.amount_paid,
+                amount_due: order.amount_due,
+                currency: order.currency,
+                receipt: order.receipt,
+                status: order.status,
+                attempts: order.attempts,
+                notes: order.notes,
+                failedDetails: failurePayment
             }
-        };
-        var rzp1 = new Razorpay(checkoutOptions);
-        document.getElementById('rzp-button1').onclick = function(e) {
-            rzp1.open();
-            e.preventDefault();
+            const savePaymentURL = 'http://localhost:4000/savePayment';
+            fetch(savePaymentURL, {
+                    method: "POST",
+                    body: JSON.stringify(paymentInfo),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8",
+                        "Access-Control-Allow-Origin": "*"
+                    }
+                })
+                .then(response => response.json())
+                .then(orderDetails => {
+
+                })
+                .catch(err => console.log(JSON.stringify(err)));
         }
     </script>
 
@@ -169,7 +233,7 @@
     </script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
     </script>
-    
+
     <!-- https://razorpay.com/docs/payment-gateway/web-integration/standard/#step-2-pass-order-id-and-other-options
     https://razorpay.com/docs/payment-gateway/web-integration/standard/configure-payment-methods/ -->
 </body>

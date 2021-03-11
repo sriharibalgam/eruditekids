@@ -1,0 +1,32 @@
+import express from 'express';
+import logger from '../utils/logger';
+import { PaymentsService } from '../services/payments.service';
+
+const router = express.Router();
+
+const paymentService = new PaymentsService();
+
+/**
+ * POST: /apiPaymentOrder
+ * @param req - orderDetails: {...}
+ * @param res - returns orderDetails
+ */
+const apiPaymentOrder = (req: express.Request, res: express.Response) => {
+    logger.info('paymentsAPI', 'apiPaymentOrder');
+    return paymentService.apiPaymentOrder(req, res);
+};
+
+/**
+ * POST: /savePayment
+ * @param req - Payment DEtails: {...}
+ * @param res - returns Message { message: 'Success or Failure' }
+ */
+const savePayment = (req: express.Request, res: express.Response) => {
+    logger.info('paymentsAPI', 'savePayment');
+    return paymentService.savePayment(req, res);
+};
+
+router.post('/order', apiPaymentOrder);
+router.post('/savePayment', savePayment);
+
+export default router;
