@@ -70,6 +70,7 @@ export class PhonicsService {
         const queryString = Object.keys(querystring.parse(req.query.searchWords))[0];
         const searchWords = JSON.parse(queryString);
 
+        logger.info('Phonics', 'Query:: ' + searchWords);
         // TODO: Convert searchWords to Array
         PhonicsModel.find({ 'sound': { $in : searchWords } }, (err: Error, records: any) => {
             if (err) { throw err; }
@@ -77,15 +78,15 @@ export class PhonicsService {
                 const foundWords = records.map( (word: any) => word.sound); // Map sounds from records
                 // Filter words from SearchWords and return an array of words that are not exist in database
                 let unMatchedData;
-                if (foundWords.length > searchWords.length) {
-                    unMatchedData = foundWords.filter((f: any) => !searchWords.includes(f));
+                if (foundWords.length >= searchWords.length) {
+                    unMatchedData = foundWords.filter((f: string) => !searchWords.includes(f));
                 } else {
                     unMatchedData = searchWords.filter((f: any) => !foundWords.includes(f));
                 }
-                return res.status(200).json({ message: 'Uploaded', data: unMatchedData});
+                return res.status(200).json({ message: 'Success', unfoundWords: unMatchedData, foundWords: records });
             } else {
                 logger.info('info', 'NO Records Found');
-                return res.status(200).json({ message: 'Sounds Not Uploaded', data: records});
+                return res.status(200).json({ message: 'No Data Found', unfoundWords: searchWords});
             }
         });
     }

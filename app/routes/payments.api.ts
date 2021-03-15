@@ -25,8 +25,20 @@ const savePayment = (req: express.Request, res: express.Response) => {
     logger.info('paymentsAPI', 'savePayment');
     return paymentService.savePayment(req, res);
 };
+/**
+ * POST: /savePayment
+ * @param req - param: id, body: { amount: string, currency}
+ * @param res - returns Message { message: 'Success or Failure' }
+ */
+const capturePayment = (req: express.Request, res: express.Response) => {
+    logger.info('paymentsAPI', 'capturePayment');
+    return paymentService.capturePayment(req, res);
+};
 
 router.post('/order', apiPaymentOrder);
 router.post('/savePayment', savePayment);
+router.post('/payments/:id/capture', capturePayment);
+router.post('/payments/:id', savePayment);
+router.post('/payments', savePayment);
 
 export default router;

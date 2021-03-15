@@ -43,4 +43,10 @@ export class PaymentsService {
 
     }
 
+    capturePayment(req: express.Request, res: express.Response) {
+
+    }
+
+    
+
 }
