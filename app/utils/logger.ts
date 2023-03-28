@@ -4,7 +4,7 @@ const getTimeStamp = (): string => {
     return new Date().toISOString();
 };
 
-const info = (namespace: string, messaage: string, object?: any) => {
+const info = (namespace: string, messaage?: string, object?: any) => {
     if (object) {
         console.log(`[${getTimeStamp()}]: [INFO] [${namespace}]: ${messaage} `, object);
         writeLogsToFile(`[${getTimeStamp()}]: [INFO] [${namespace}]: ${messaage} `);
@@ -13,7 +13,7 @@ const info = (namespace: string, messaage: string, object?: any) => {
         console.log(`[${getTimeStamp()}]: [INFO] [${namespace}]: ${messaage} `);
     }
 };
-const warn = (namespace: string, messaage: string, object?: any) => {
+const warn = (namespace: string, messaage?: string, object?: any) => {
     if (object) {
         console.warn(`[${getTimeStamp()}]: [debug] [${namespace}]: ${messaage} `, object);
         writeLogsToFile(`[${getTimeStamp()}]: [debug] [${namespace}]: ${messaage} `);
@@ -22,7 +22,7 @@ const warn = (namespace: string, messaage: string, object?: any) => {
         writeLogsToFile(`[${getTimeStamp()}]: [debug] [${namespace}]: ${messaage} `);
     }
 };
-const debug = (namespace: string, messaage: string, object?: any) => {
+const debug = (namespace: string, messaage?: string, object?: any) => {
     if (object) {
         console.debug(`[${getTimeStamp()}]: [debug] [${namespace}]: ${messaage} `, object);
         writeLogsToFile(`[${getTimeStamp()}]: [debug] [${namespace}]: ${messaage} `);
@@ -31,7 +31,7 @@ const debug = (namespace: string, messaage: string, object?: any) => {
         writeLogsToFile(`[${getTimeStamp()}]: [debug] [${namespace}]: ${messaage} `);
     }
 };
-const error = (namespace: string, messaage: string, object?: any) => {
+const error = (namespace: string, messaage?: string, object?: any) => {
     if (object) {
         console.error(`[${getTimeStamp()}]: [error] [${namespace}]: ${messaage} `, object);
         writeLogsToFile(`[${getTimeStamp()}]: [error] [${namespace}]: ${messaage} `);
