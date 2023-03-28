@@ -1,44 +1,36 @@
 import express from 'express';
 import logger from '../utils/logger';
-import { PaymentsService } from '../services/payments.service';
+import { PackagesService } from '../services/packages.service';
 
 const router = express.Router();
 
-const paymentService = new PaymentsService();
+const packagesService = new PackagesService();
 
-/**
- * POST: /apiPaymentOrder
- * @param req - orderDetails: {...}
- * @param res - returns orderDetails
- */
-const apiPaymentOrder = (req: express.Request, res: express.Response) => {
-    logger.info('paymentsAPI', 'apiPaymentOrder');
-    return paymentService.apiPaymentOrder(req, res);
-};
+router.get('/list-packages', async (req: express.Request, res: express.Response) => {
+    logger.info('Packages.API', 'Get Packages Service call');
+    return packagesService.getAllPackages(req, res);
+});
 
-/**
- * POST: /savePayment
- * @param req - Payment DEtails: {...}
- * @param res - returns Message { message: 'Success or Failure' }
- */
-const savePayment = (req: express.Request, res: express.Response) => {
-    logger.info('paymentsAPI', 'savePayment');
-    return paymentService.savePayment(req, res);
-};
-/**
- * POST: /savePayment
- * @param req - param: id, body: { amount: string, currency}
- * @param res - returns Message { message: 'Success or Failure' }
- */
-const capturePayment = (req: express.Request, res: express.Response) => {
-    logger.info('paymentsAPI', 'capturePayment');
-    return paymentService.capturePayment(req, res);
-};
+router.get('/get-package', async (req: express.Request, res: express.Response) => {
+    logger.info('Packages.API:/get-package', 'Get Packages Service call');
 
-router.post('/order', apiPaymentOrder);
-router.post('/savePayment', savePayment);
-router.post('/payments/:id/capture', capturePayment);
-router.post('/payments/:id', savePayment);
-router.post('/payments', savePayment);
+    if (req.query.id) {
+        try {
+            const packageData = await packagesService.getPackageById(req.query.id.toString());;
+            return res.status(packageData ? 200 : 204).json({ message: packageData });
+        } catch (e: any) {
+            logger.error('PackagesAPI:/get-package', `Caught an exception while fetching - ${e.message}`);
+            return res.status(500).send({ status: '500', message: `Oops! Something went wrong` });
+        }// try-catch
+    } else {
+        logger.error('PackagesAPI:/get-package', `Missing Package Id`);
+        return res.status(400).send({ status: '400', message: 'Invalid Request' });
+    }
+});
+
+router.post('/save-package', async (req: express.Request, res: express.Response) => {
+    logger.info('Packages.API', 'Save Package Service Call');
+    return packagesService.savePackages(req, res);
+});
 
 export default router;

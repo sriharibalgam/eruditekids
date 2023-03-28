@@ -5,7 +5,7 @@ import passport from 'passport';
 import { validate, Joi } from 'express-validation';
 import logger from '../utils/logger';
 
-const studentSerive = new StudentService();
+const studentService = new StudentService();
 const namespace = 'STUDENT_API';
 const router = Router();
 
@@ -21,7 +21,7 @@ const validateRegistration = {
 const studentRegistration = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
-        const enrolled: any = await studentSerive.enrollStudent(req, res, next);
+        const enrolled: any = await studentService.enrollStudent(req, res, next);
         if (enrolled.status === 409) {
             res.status(409).send({
                 status: 409,
@@ -32,7 +32,7 @@ const studentRegistration = async (req: Request, res: Response, next: NextFuncti
                 message: 'Successfully added'
             });
         }
-    } catch (e) {
+    } catch (e: any) {
         res.status(500).send(e.message || 'Internal Server Error!!');
     }
 };
@@ -41,7 +41,7 @@ const studentRegistration = async (req: Request, res: Response, next: NextFuncti
 const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
     logger.info(namespace, 'request Body ', req.body);
     try {
-        const loggedIn = await studentSerive.studentLogin(req);
+        const loggedIn = await studentService.studentLogin(req);
         logger.info(namespace, 'request studentLogin ', loggedIn);
         if (loggedIn) {
             res.status(200).json(loggedIn);
@@ -57,7 +57,7 @@ const studentLogin = async (req: Request, res: Response, next: NextFunction) => 
 /* Get Students List */
 const getStudentsList = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const students = await studentSerive.getStudents();
+        const students = await studentService.getStudents();
         logger.info(namespace, ' getStudentsList ', students);
         res.status(200).send(students);
     } catch (err) {

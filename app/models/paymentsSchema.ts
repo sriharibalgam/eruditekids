@@ -12,14 +12,17 @@ const paymentsData: Schema = new Schema({
     receipt_number: { type: String },
     status: { type: String },
     notes: { type: Array },
-    failedDetails: {
+    failedInfo: {
         code: { type: String },
         description: { type: String },
-        metadata: { type: String },
+        metadata: { type: Object },
         reason: { type: String },
         source: { type: String },
         step: { type: String }
     }
+}, {
+    collection: 'paymentsData',
+    strict: false
 });
 
 const PaymentsModel = mongoose.model('paymentsData', paymentsData);

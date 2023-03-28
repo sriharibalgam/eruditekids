@@ -1,7 +1,7 @@
-import { IStudent } from '../interfaces/stundents.interface';
+import { IStudent } from '../interfaces/students.interface';
 import StudentsModel from '../models/studentsSchema';
 import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcrypt';
+// import bcrypt from 'bcrypt';
 import logger from '../utils/logger';
 
 export class StudentService {
@@ -17,10 +17,11 @@ export class StudentService {
 
         const enrollmentData: IStudent = req.body;
         // Hash Password
-        const hashedPassword = await bcrypt.hash(enrollmentData.password, 12);
+        const hashedPassword = enrollmentData.password; // await bcrypt.hash(enrollmentData.password, 12);
 
         // Assign Hashed Password to Password
         enrollmentData.password = hashedPassword;
+        enrollmentData.status = true
 
         const newUser = new StudentsModel(enrollmentData);
 
@@ -44,7 +45,7 @@ export class StudentService {
         if (userFound !== null) {
             logger.info(this.namespace, 'Username Matched!! ', userFound.email);
 
-            const passwordMatched = await bcrypt.compare(password, userFound.password);
+            const passwordMatched = userFound.password; // await bcrypt.compare(password, userFound.password);
             logger.info(this.namespace, 'Password Matched!! ', passwordMatched);
             if (!passwordMatched) {
                 response.status = 401;

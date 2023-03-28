@@ -7,18 +7,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>Erudite Kids</title>
     <!-- Payment Checkout process from JavaScript -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="public/scripts.js"></script>
+    <!-- Order Details -->
 </head>
 
 <body>
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="/">Navbar</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -48,191 +52,48 @@
 
 
         <!-- Content here -->
-        <div class="jumbotron">
-            <h1 class="">Payment Gateway</h1>
-            <button type="submit" class="btn btn-primary" onclick="makePayment()">Pay Fee</button>
+        <div class="row row-cols-1 row-cols-md-3 mb-3 text-center" id="packagesList">
+            <script>
+                getPackages().then((packList) => {
+                    if (packList.length > 0) {
+                        let div = document.getElementById("packagesList");
+                        packList.forEach(package => {
+                            div.innerHTML += `
+                                <div class="col">
+                                    <div class="card mb-4 rounded-3 shadow-sm border-primary">
+                                        <div class="card-header py-3 text-bg-primary border-primary">
+                                            <h4 class="my-0 fw-normal">${package.package_name}</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <h1 class="card-title pricing-card-title"><i class="bi bi-currency-rupee"></i>RS ${package.offer_price}<small class="text-muted fw-light">/year</small></h1>
+                                            <ul class="list-unstyled mt-3 mb-4">
+                                                <li>${package.description}</li>
+                                            </ul>
+                                            <button type="button" class="w-100 btn btn-lg btn-primary" onclick="buyCourse('${package.packageId}')">Buy now</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+
+                });
+            </script>
         </div>
     </div>
 
-    <!-- Order Details -->
-    <script>
-        function makePayment() {
-            const keySecret = {
-                KEY: 'rzp_test_IZWqnQp3SRAtI4',
-                SECRET: 'l7jpji3W8YcBe13p3J5c7DRs'
-            };
-            const paymentURL = 'http://localhost:4000/order';
-
-            // const paymentURL = 'https://api.razorpay.com/v1/orders';
-            // const encodeAuth = btoa(`${keySecret.KEY}:${keySecret.SECRET}`); // base64 encryption 
-            // "Authorization": 'Basic ' + encodeAuth,
-
-            // Student Fee Details & Parents Infomation
-            const amount = 100;
-            const receiptNumber = `#Receipt_${Math.ceil(Math.random() * 1000)}`;
-            const email = "eruditeskids.in@gmail.com";
-            const contact = 9966000066;
-            const feeDescription = "Fee paid for 1st Installment";
-
-            // Get OrderID with by Details to Server 
-            const order_options = {
-                "amount": amount,
-                "currency": "INR",
-                "receipt": receiptNumber,
-                "payment_capture": 1
-            };
-
-            // make Service Request for Payment
-            fetch(paymentURL, {
-                    method: "POST",
-                    body: JSON.stringify(order_options),
-                    headers: {
-                        "Content-type": "application/json; charset=UTF-8",
-                        "Access-Control-Allow-Origin": "*"
-                    }
-                })
-                .then(response => response.json())
-                .then(orderDetails => {
-                    if (orderDetails.order) {
-                        const order = orderDetails.order;
-                        console.log('Order Details Test: ', order);
-
-                        // Get Payment Types
-                        const paymentTypes = getPaymentTypes();
-
-                        const checkoutOptions = {
-                            key: keySecret.KEY,
-                            amount: order.amount,
-                            currency: "INR",
-                            name: "EruditeKids English Mastery",
-                            description: feeDescription,
-                            image: "https://s3.amazonaws.com/rzp-mobile/images/rzp.png",
-                            prefill: {
-                                email: email,
-                                contact: contact,
-                            },
-                            order_id: order.id,
-                            config: paymentTypes,
-                            handler: (response) => {
-                                console.log('Payment Response:: ', response, ' ::ORDERID:: ', response.razorpay_payment_id);
-                                // Save Payment Details in Database
-                                savePaymentDetails(response, order);
-                            },
-                            modal: {
-                                ondismiss: () => {
-                                    if (confirm('Are you sure, you want to close the form?')) {
-                                        txt = 'You pressed OK!';
-                                        console.log('Checkout form closed by the user');
-                                    } else {
-                                        txt = 'You pressed Cancel!';
-                                        console.log('Complete the Payment')
-                                    }
-                                }
-                            }
-                        };
-
-                        // Create Connection with Razorpay
-                        let razorpay = new Razorpay(checkoutOptions);
-                        // Open Payment Modal
-                        razorpay.open();
-
-                        // Payment Failed Details 
-                        razorpay.on('payment.failed', function(response) {
-                            console.log('Payment Failed:: ', response);
-                            savePaymentDetails(response, order);
-                        });
-                    }
-                    console.log('Order Details :', orderDetails);
-                })
-                .catch(err => console.log(JSON.stringify(err)));
-        }
-
-
-        // Payment types Configuration
-        function getPaymentTypes() {
-            const paymentTypesConfig = {
-                display: {
-                    blocks: {
-                        banks: {
-                            name: 'All payment methods',
-                            instruments: [{
-                                method: 'upi',
-                                apps: ['google_pay', 'bhim', 'paytm', 'phonepe', 'amazon'],
-                                flows: ['qr', 'collect', 'intent']
-                            }, {
-                                method: 'card',
-                                networks: ['MasterCard', 'Visa'],
-                                types: ['debit', 'credit']
-                            }, {
-                                method: 'wallet',
-                                wallets: ['amazonpay', 'phonepe', 'airtelmoney', 'freecharge']
-                            }, {
-                                method: 'netbanking'
-                            }, {
-                                method: 'emi'
-                            }]
-                        }
-                    },
-                    sequence: ['block.banks'],
-                    preferences: {
-                        show_default_blocks: false,
-                    }
-                }
-            };
-            return paymentTypesConfig;
-        }
-
-        // Save Details in Database on Successfull Payment
-        function savePaymentDetails(response, order) {
-            const failurePayment = {
-                code: response.code,
-                description: response.description,
-                metadata: response.metadata,
-                reason: response.reason,
-                source: response.source,
-                step: response.step
-            };
-
-            console.log('Successfull Order:: ', response, order);
-            const paymentInfo = {
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                amount: order.amount,
-                amount_paid: order.amount_paid,
-                amount_due: order.amount_due,
-                currency: order.currency,
-                receipt: order.receipt,
-                status: order.status,
-                attempts: order.attempts,
-                notes: order.notes,
-                failedDetails: failurePayment
-            }
-            const savePaymentURL = 'http://localhost:4000/savePayment';
-            fetch(savePaymentURL, {
-                    method: "POST",
-                    body: JSON.stringify(paymentInfo),
-                    headers: {
-                        "Content-type": "application/json; charset=UTF-8",
-                        "Access-Control-Allow-Origin": "*"
-                    }
-                })
-                .then(response => response.json())
-                .then(orderDetails => {
-
-                })
-                .catch(err => console.log(JSON.stringify(err)));
-        }
-    </script>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
-    </script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
-    </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+        </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+        </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+        </script>
 
     <!-- https://razorpay.com/docs/payment-gateway/web-integration/standard/#step-2-pass-order-id-and-other-options
     https://razorpay.com/docs/payment-gateway/web-integration/standard/configure-payment-methods/ -->
