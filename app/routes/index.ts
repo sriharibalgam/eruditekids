@@ -2,6 +2,7 @@ import express from 'express';
 import studentsApi from  './studentEnrollment.api';
 import phonicsApi from './phonics.api';
 import paymentsAPI from './payments.api';
+import packagesApi from './packages.api'
 
 const router = express.Router({caseSensitive: true});
 
@@ -13,6 +14,9 @@ router.use('/', phonicsApi);
 
 /* Payments Gateway API Routing */
 router.use('/', paymentsAPI);
+
+/* Packages Gateway API Routing */
+router.use('/', packagesApi);
 
 /* Client Routing Routing */
 router.use('/register', (req, res, next) => {
