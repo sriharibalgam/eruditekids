@@ -6,4 +6,6 @@ export interface IStudent extends Document {
     lastName: string;
     password: string;
     role: string;
+    subscriptions: Array<Object>[]
+    status: boolean
 }
